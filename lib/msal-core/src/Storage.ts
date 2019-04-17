@@ -88,18 +88,32 @@ export class Storage {// Singleton
         return results;
     }
 
-    removeAcquireTokenEntries(authorityKey: string, acquireTokenUserKey: string): void {
+    removeAcquireTokenEntries(): void {
         const storage = window[this.cacheLocation];
         if (storage) {
             let key: string;
             for (key in storage) {
                 if (storage.hasOwnProperty(key)) {
-                    if ((authorityKey !== "" && key.indexOf(authorityKey) > -1) || (acquireTokenUserKey !== "" && key.indexOf(acquireTokenUserKey) > -1)) {
-                        this.removeItem(key);
+                    if (key.indexOf(Constants.authority) !== -1 || key.indexOf(Constants.acquireTokenUser) !== -1) {
+                        const value: string = storage[key];
+                        const state = value.split(Constants.resourceDelimeter).slice(-1)[0];
+                        const renewStatus = storage[Constants.renewStatus + state];
+                        if (!renewStatus || renewStatus !== Constants.tokenRenewStatusInProgress) {
+                            this.removeItem(key);
+                            this.setItemCookie(key, "", -1);
+                        }
+                    }
+                    if (key.indexOf(Constants.renewStatus) !== -1) {
+                        const value = storage[key];
+                        if (value !== Constants.tokenRenewStatusInProgress) {
+                            this.removeItem(key);
+                        }
                     }
                 }
             }
         }
+
+        this.clearCookie();
     }
 
     resetCacheItems(): void {
@@ -161,14 +175,14 @@ export class Storage {// Singleton
      * Create acquireTokenUserKey to cache user object
      */
     static generateAcquireTokenUserKey(userId: any, state: string): string {
-        return CacheKeys.ACQUIRE_TOKEN_USER + Constants.resourceDelimiter +
-            `${userId}` + Constants.resourceDelimiter  + `${state}`;
+        return CacheKeys.ACQUIRE_TOKEN_USER + Constants.resourceDelimeter +
+            `${userId}` + Constants.resourceDelimeter  + `${state}`;
     }
 
     /**
      * Create authorityKey to cache authority
      */
     static generateAuthorityKey(state: string): string {
-        return CacheKeys.AUTHORITY + Constants.resourceDelimiter + `${state}`;
+        return CacheKeys.AUTHORITY + Constants.resourceDelimeter + `${state}`;
     }
 }

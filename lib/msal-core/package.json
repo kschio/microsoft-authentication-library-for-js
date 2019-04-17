@@ -28,7 +28,7 @@
     "clean": "shx rm -rf dist docs lib-commonjs lib-es6",
     "doc": "typedoc --out ./docs ./src/ --gitRevision dev",
     "build:modules": "tsc && tsc -m es6 --outDir lib-es6",
-    "build": "npm run clean && npm run doc && npm run build:modules && npm run lint && npm run build:webpack && npm test",
+    "build": "npm run clean && npm run doc && npm run build:modules && npm run lint && npm run build:webpack",
     "test": "karma start && jasmine tests/MSALSpec.js",
     "lint": "tslint -c tslint.json src/**/*.ts",
     "build:webpack": "webpack"
